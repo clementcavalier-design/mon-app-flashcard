@@ -16,6 +16,7 @@
         
         <div id="menu-container">
             <h2>Choisissez une Thématique</h2>
+            
             <div id="theme-list">
                 Chargement des statistiques...
             </div>
@@ -25,10 +26,15 @@
         </div>
         
         <div id="card-container" class="hidden">
+            
+            <div id="stats" style="margin-bottom: 15px;">
+                Cartes à réviser aujourd'hui : <span id="cards-due-count">...</span>
+            </div>
+            
             <div id="flashcard" class="card" onclick="toggleAnswer()">
                 <p id="theme-display" class="theme"></p>
                 <div id="question-display" class="content">...</div>
-                <div id="answer-display" class="content answer-hidden">Cliquez pour voir la réponse</div>
+                <div id="answer-display" class="content answer-hidden">Cliquez pour voir la réponse</div> 
             </div>
             
             <div id="evaluation-buttons" class="hidden">
@@ -41,7 +47,7 @@
         
         <div id="status-message"></div>
         
-        <button id="back-to-menu" class="hidden btn difficulty-4" onclick="showMenu()">← Retour au Menu</button>
+        <button id="back-to-menu" class="hidden btn back-button" onclick="showMenu()">← Retour au Menu</button>
 
     </div>
     

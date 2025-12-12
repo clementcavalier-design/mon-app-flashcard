@@ -1,9 +1,10 @@
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Optimisé Mac/iPhone */
+    /* Styles pour l'ergonomie Mac/iPhone */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
     background-color: #f4f7f6;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* Alignement en haut pour laisser de la place au contenu */
     min-height: 100vh;
     margin: 0;
     padding: 20px;
@@ -14,12 +15,18 @@ body {
     max-width: 600px;
     width: 100%;
     text-align: center;
+    padding-top: 20px; /* Espace pour le titre */
 }
 
 h1 {
     color: #333;
     margin-bottom: 30px;
+    font-size: 1.8em;
 }
+
+/* ---------------------------------------------------------------------- */
+/* 1. STYLES DE LA CARTE DE RÉVISION */
+/* ---------------------------------------------------------------------- */
 
 .card {
     background: white;
@@ -56,13 +63,16 @@ h1 {
 .answer-hidden {
     color: #007bff;
     font-weight: bold;
-    /* Rendre le texte moins visible sans le cacher complètement */
-    opacity: 0.2; 
+    opacity: 0.2; /* Masque le texte initial */
 }
+
+/* ---------------------------------------------------------------------- */
+/* 2. STYLES DES BOUTONS D'ÉVALUATION */
+/* ---------------------------------------------------------------------- */
 
 #evaluation-buttons {
     display: flex;
-    flex-wrap: wrap; /* Pour s'adapter aux petits écrans */
+    flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
     margin-top: 20px;
@@ -76,120 +86,18 @@ h1 {
     color: white;
     font-weight: bold;
     transition: opacity 0.2s;
-    min-width: 45%; /* S'assurer que deux boutons tiennent sur une ligne */
+    min-width: 45%; 
 }
 
-.difficulty-1 { background-color: #dc3545; }
-.difficulty-2 { background-color: #ffc107; color: #333;}
-.difficulty-3 { background-color: #28a745; }
-.difficulty-4 { background-color: #007bff; }
+.difficulty-1 { background-color: #dc3545; } /* Rouge - Difficile (Urgence) */
+.difficulty-2 { background-color: #ffc107; color: #333;} /* Jaune - Moyen */
+.difficulty-3 { background-color: #28a745; } /* Vert - Facile */
+.difficulty-4 { background-color: #007bff; } /* Bleu - Très Facile */
 
-.hidden {
-    display: none !important;
-}
-
-#status-message {
-    margin-top: 20px;
-    color: #007bff;
-    font-weight: bold;
-    font-size: 1.1em;
-}
-
-#stats {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-}
-
-/* Classes de base pour la gestion des vues */
-.hidden {
-    display: none !important;
-}
-
-/* Styles des boîtes de statistiques */
-.stats-box {
-    margin-top: 30px;
-    padding: 15px;
-    background-color: #f0f0f0;
-    border-radius: 8px;
-    text-align: center;
-    border: 1px solid #ddd;
-}
-
-/* Styles pour le menu principal */
-#menu-container {
-    padding: 20px 0;
-}
-
-/* Styles pour la liste des thèmes */
-#theme-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 20px;
-}
-
-/* Styles pour chaque bloc de thème */
-.theme-stat-item {
-    background-color: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border-left: 5px solid var(--theme-color, #2a9d8f); /* Couleur d'accentuation */
-    transition: transform 0.2s;
-}
-
-.theme-stat-item:active {
-    transform: scale(0.98);
-}
-
-.theme-stat-item h3 {
-    margin-top: 0;
-    color: #2a9d8f;
-}
-
-.theme-stat-item p {
-    margin: 5px 0;
-    font-size: 0.95em;
-}
-
-.theme-stat-item strong {
-    font-weight: bold;
-}
-
-.theme-stat-item button {
-    margin-top: 10px;
-    width: 100%;
-    /* Couleur du bouton "Commencer" */
-    background-color: #2a9d8f; 
-    color: white;
+.btn:hover {
+    opacity: 0.8;
 }
 
 /* Style du bouton de retour */
 .back-button {
-    background-color: #8d99ae;
-    color: white;
-    width: 100%;
-    margin-top: 20px;
-}
-/* Styles pour les stats d'urgence dans le menu */
-.theme-stat-item strong {
-    font-weight: bold;
-}
-
-/* Styles pour le nombre de cartes dues (rendues rouges dans le JS) */
-.theme-stat-item span {
-    /* Assure que la couleur définie dans le JS est prioritaire, si vous utilisez la couleur en ligne */
-    /* Cependant, pour plus de propreté CSS, définissons le style ici: */
-    font-weight: bold;
-    color: #dc3545; /* Rouge vif pour l'urgence (basé sur le style "difficulty-1" de l'application) */
-}
-
-/* Si vous voulez que le total se démarque aussi un peu */
-.theme-stat-item p {
-    margin: 5px 0;
-    font-size: 0.95em;
-    line-height: 1.4;
-}
+    background-color: #8
