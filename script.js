@@ -97,11 +97,22 @@ function saveLocalCards() {
 // Affiche la prochaine carte à réviser
 function showNextCard() {
     const now = new Date();
+    
+    // Rendre le thème actuel robuste (supprimer les espaces s'il y en avait)
+    const activeTheme = currentTheme ? currentTheme.trim() : null; // NOUVEAU
+
     // 1. Filtrer les cartes DUES du thème sélectionné
-    const dueCards = flashcards.filter(card => 
-        (card.theme === currentTheme || (!card.theme && currentTheme === 'Non classé')) && // Filtre par thème
-        new Date(card.nextReview) <= now // Filtre par date de révision
-    );
+    const dueCards = flashcards.filter(card => {
+        // Nettoyer le thème de la carte également pour la comparaison
+        const cardTheme = card.theme ? card.theme.trim() : null;
+        
+        return (
+            // Comparer le thème nettoyé
+            cardTheme === activeTheme && 
+            // Filtrer par date de révision
+            new Date(card.nextReview) <= now
+        );
+    });
     
     document.getElementById('cards-due-count').textContent = dueCards.length;
 
