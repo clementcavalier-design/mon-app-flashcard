@@ -232,31 +232,35 @@ function displayStats() {
     const themeStats = {};
     let totalCards = 0;
     let reviewedCards = 0; 
-    let totalDueToday = 0; // Ajout de l'initialisation ici
+    let totalDueToday = 0; // Initialisation du compteur global
     const now = new Date();
 
-    // 1. Calcul des statistiques
+    // 1. Calcul des statistiques (avec Due Today)
     flashcards.forEach(card => {
         const theme = card.theme || 'Non classé';
         totalCards++;
 
         if (!themeStats[theme]) {
-            // AJOUT DE dueToday: 0 ICI pour éviter l'erreur "undefined"
+            // Initialisation correcte, incluant dueToday
             themeStats[theme] = { total: 0, reviewed: 0, dueToday: 0 }; 
         }
 
         themeStats[theme].total++;
-        // ... (le reste du calcul est correct)
 
-
-        // Une carte est considérée "révisée" si l'intervalle est > 0 (si on l'a réussi au moins une fois)
+        // Une carte est considérée "révisée" si l'intervalle est > 0
         if (card.interval > 0) {
             themeStats[theme].reviewed++;
             reviewedCards++;
         }
+        
+        // Calcul du DUE TODAY
+        if (new Date(card.nextReview) <= now) {
+            themeStats[theme].dueToday++;
+            totalDueToday++;
+        }
     });
 
-    // Affichage des statistiques par thème
+    // 2. Affichage des statistiques par thème
     const themeListElement = document.getElementById('theme-list');
     themeListElement.innerHTML = ''; 
 
@@ -264,12 +268,26 @@ function displayStats() {
         const stats = themeStats[theme];
         const themeButton = document.createElement('div');
         themeButton.className = 'theme-stat-item';
+        
+        // Calcul des variables manquantes
+        const reviewPercentage = stats.total > 0 ? Math.round((stats.reviewed / stats.total) * 100) : 0;
+        let buttonText = 'Commencer la révision';
+        let buttonClass = 'btn difficulty-3';
+
+        if (stats.dueToday > 0) {
+            buttonText = `RÉVISER ${stats.dueToday} CARTE(S) MAINTENANT`;
+            buttonClass = 'btn difficulty-1'; // Rouge pour l'urgence
+        } else if (stats.reviewed === stats.total) {
+            buttonText = 'Félicitations, rien à réviser !';
+            buttonClass = 'btn difficulty-2';
+        }
+
         themeButton.innerHTML = `
             <h3>${theme}</h3>
             
             <p><strong>Total cartes :</strong> ${stats.total}</p>
-            <p><strong>Cartes à réviser :</strong> <span style="font-size:1.1em; color:red;">${stats.dueToday}</span></p>
-            
+            <p><strong>Cartes à réviser :</strong> <span class="due-count">${stats.dueToday}</span></p>
+
             <p style="font-size:0.8em; margin-top: 10px;">Progression totale du thème: ${stats.reviewed} / ${stats.total} (${reviewPercentage}%)</p>
             
             <button onclick="startReview('${theme}')" class="${buttonClass}">${buttonText}</button>
@@ -277,10 +295,12 @@ function displayStats() {
         themeListElement.appendChild(themeButton);
     }
     
-    // Affichage des statistiques globales
+    // 3. Affichage des statistiques globales
+    const totalPercentage = totalCards > 0 ? Math.round((reviewedCards / totalCards) * 100) : 0;
     document.getElementById('overall-stats').innerHTML = `
+        <p><strong>Total cartes dues aujourd'hui :</strong> ${totalDueToday}</p>
         <p><strong>Total cartes dans l'application :</strong> ${totalCards}</p>
-        <p><strong>Total révisé :</strong> ${reviewedCards} sur ${totalCards}</p>
+        <p><strong>Progression totale :</strong> ${reviewedCards} / ${totalCards} (${totalPercentage}%)</p>
     `;
 }
 
