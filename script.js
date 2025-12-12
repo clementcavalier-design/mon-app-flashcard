@@ -231,17 +231,23 @@ let currentTheme = null; // Nouvelle variable globale pour le thème actuel
 function displayStats() {
     const themeStats = {};
     let totalCards = 0;
-    let reviewedCards = 0; // Cartes révisées au moins une fois
+    let reviewedCards = 0; 
+    let totalDueToday = 0; // Ajout de l'initialisation ici
+    const now = new Date();
 
+    // 1. Calcul des statistiques
     flashcards.forEach(card => {
         const theme = card.theme || 'Non classé';
         totalCards++;
 
         if (!themeStats[theme]) {
-            themeStats[theme] = { total: 0, reviewed: 0, due: 0 };
+            // AJOUT DE dueToday: 0 ICI pour éviter l'erreur "undefined"
+            themeStats[theme] = { total: 0, reviewed: 0, dueToday: 0 }; 
         }
 
         themeStats[theme].total++;
+        // ... (le reste du calcul est correct)
+
 
         // Une carte est considérée "révisée" si l'intervalle est > 0 (si on l'a réussi au moins une fois)
         if (card.interval > 0) {
@@ -260,9 +266,13 @@ function displayStats() {
         themeButton.className = 'theme-stat-item';
         themeButton.innerHTML = `
             <h3>${theme}</h3>
-            <p>Total questions: <strong>${stats.total}</strong></p>
-            <p>Révisé au moins 1x: <strong>${stats.reviewed}</strong></p>
-            <button onclick="startReview('${theme}')" class="btn difficulty-3">Commencer</button>
+            
+            <p><strong>Total cartes :</strong> ${stats.total}</p>
+            <p><strong>Cartes à réviser :</strong> <span style="font-size:1.1em; color:red;">${stats.dueToday}</span></p>
+            
+            <p style="font-size:0.8em; margin-top: 10px;">Progression totale du thème: ${stats.reviewed} / ${stats.total} (${reviewPercentage}%)</p>
+            
+            <button onclick="startReview('${theme}')" class="${buttonClass}">${buttonText}</button>
         `;
         themeListElement.appendChild(themeButton);
     }

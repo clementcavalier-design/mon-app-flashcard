@@ -174,3 +174,22 @@ h1 {
     width: 100%;
     margin-top: 20px;
 }
+/* Styles pour les stats d'urgence dans le menu */
+.theme-stat-item strong {
+    font-weight: bold;
+}
+
+/* Styles pour le nombre de cartes dues (rendues rouges dans le JS) */
+.theme-stat-item span {
+    /* Assure que la couleur définie dans le JS est prioritaire, si vous utilisez la couleur en ligne */
+    /* Cependant, pour plus de propreté CSS, définissons le style ici: */
+    font-weight: bold;
+    color: #dc3545; /* Rouge vif pour l'urgence (basé sur le style "difficulty-1" de l'application) */
+}
+
+/* Si vous voulez que le total se démarque aussi un peu */
+.theme-stat-item p {
+    margin: 5px 0;
+    font-size: 0.95em;
+    line-height: 1.4;
+}
