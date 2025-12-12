@@ -86,7 +86,7 @@ function loadLocalCards() {
     });
 
     saveLocalCards();
-    showNextCard();
+    showMenu(); // <-- NOUVEAU : Afficher le menu au lieu de la première carte
 }
 
 // Sauvegarde l'état actuel
@@ -97,7 +97,11 @@ function saveLocalCards() {
 // Affiche la prochaine carte à réviser
 function showNextCard() {
     const now = new Date();
-    const dueCards = flashcards.filter(card => new Date(card.nextReview) <= now);
+    // 1. Filtrer les cartes DUES du thème sélectionné
+    const dueCards = flashcards.filter(card => 
+        (card.theme === currentTheme || (!card.theme && currentTheme === 'Non classé')) && // Filtre par thème
+        new Date(card.nextReview) <= now // Filtre par date de révision
+    );
     
     document.getElementById('cards-due-count').textContent = dueCards.length;
 
@@ -201,6 +205,73 @@ function toggleAnswer() {
         buttons.classList.remove('hidden');
         isAnswerShown = true;
     } 
+}
+
+// Affiche le menu et cache les cartes
+function showMenu() {
+    document.getElementById('menu-container').classList.remove('hidden');
+    document.getElementById('card-container').classList.add('hidden');
+    document.getElementById('back-to-menu').classList.add('hidden');
+    document.getElementById('status-message').textContent = "";
+    displayStats(); // Recalculer les stats à chaque retour au menu
+}
+
+// Affiche les cartes et cache le menu
+function startReview(selectedTheme) {
+    currentTheme = selectedTheme; // Variable globale pour le thème sélectionné
+    document.getElementById('menu-container').classList.add('hidden');
+    document.getElementById('card-container').classList.remove('hidden');
+    document.getElementById('back-to-menu').classList.remove('hidden');
+    document.getElementById('theme-display').textContent = `Thème : ${currentTheme}`;
+    showNextCard();
+}
+
+let currentTheme = null; // Nouvelle variable globale pour le thème actuel
+
+function displayStats() {
+    const themeStats = {};
+    let totalCards = 0;
+    let reviewedCards = 0; // Cartes révisées au moins une fois
+
+    flashcards.forEach(card => {
+        const theme = card.theme || 'Non classé';
+        totalCards++;
+
+        if (!themeStats[theme]) {
+            themeStats[theme] = { total: 0, reviewed: 0, due: 0 };
+        }
+
+        themeStats[theme].total++;
+
+        // Une carte est considérée "révisée" si l'intervalle est > 0 (si on l'a réussi au moins une fois)
+        if (card.interval > 0) {
+            themeStats[theme].reviewed++;
+            reviewedCards++;
+        }
+    });
+
+    // Affichage des statistiques par thème
+    const themeListElement = document.getElementById('theme-list');
+    themeListElement.innerHTML = ''; 
+
+    for (const theme in themeStats) {
+        const stats = themeStats[theme];
+        const themeButton = document.createElement('div');
+        themeButton.className = 'theme-stat-item';
+        themeButton.innerHTML = `
+            <h3>${theme}</h3>
+            <p>Total questions: <strong>${stats.total}</strong></p>
+            <p>Révisé au moins 1x: <strong>${stats.reviewed}</strong></p>
+            <button onclick="startReview('${theme}')" class="btn difficulty-3">Commencer</button>
+        `;
+        themeListElement.appendChild(themeButton);
+    }
+    
+    // Affichage des statistiques globales
+    document.getElementById('overall-stats').innerHTML = `
+        <p><strong>Total cartes dans l'application :</strong> ${totalCards}</p>
+        <p><strong>Total révisé :</strong> ${reviewedCards} sur ${totalCards}</p>
+    `;
 }
 
 // Démarrer l'application

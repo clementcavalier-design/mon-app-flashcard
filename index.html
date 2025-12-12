@@ -14,25 +14,35 @@
     <div class="container">
         <h1>Révisions Thématiques</h1>
         
-        <div id="card-container">
+        <div id="menu-container">
+            <h2>Choisissez une Thématique</h2>
+            <div id="theme-list">
+                Chargement des statistiques...
+            </div>
+            
+            <div id="overall-stats" class="stats-box">
+                </div>
+        </div>
+        
+        <div id="card-container" class="hidden">
             <div id="flashcard" class="card" onclick="toggleAnswer()">
                 <p id="theme-display" class="theme"></p>
-                <div id="question-display" class="content">Chargement des cartes...</div>
+                <div id="question-display" class="content">...</div>
                 <div id="answer-display" class="content answer-hidden">Cliquez pour voir la réponse</div>
             </div>
             
             <div id="evaluation-buttons" class="hidden">
-                <button class="btn difficulty-1" onclick="evaluateCard(1)">1. Difficile (< 1 min)</button>
-                <button class="btn difficulty-2" onclick="evaluateCard(2)">2. Moyen (Proche)</button>
-                <button class="btn difficulty-3" onclick="evaluateCard(3)">3. Facile (Loin)</button>
-                <button class="btn difficulty-4" onclick="evaluateCard(4)">4. Très Facile (Très loin)</button>
+                <button class="btn difficulty-1" onclick="evaluateCard(1)">1. Difficile</button>
+                <button class="btn difficulty-2" onclick="evaluateCard(2)">2. Moyen</button>
+                <button class="btn difficulty-3" onclick="evaluateCard(3)">3. Facile</button>
+                <button class="btn difficulty-4" onclick="evaluateCard(4)">4. Très Facile</button>
             </div>
         </div>
         
         <div id="status-message"></div>
-        <div id="stats">
-            Cartes à réviser : <span id="cards-due-count">...</span>
-        </div>
+        
+        <button id="back-to-menu" class="hidden btn difficulty-4" onclick="showMenu()">← Retour au Menu</button>
+
     </div>
     
     <script src="script.js"></script>

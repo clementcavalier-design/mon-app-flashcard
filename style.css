@@ -102,3 +102,75 @@ h1 {
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
+
+/* Classes de base pour la gestion des vues */
+.hidden {
+    display: none !important;
+}
+
+/* Styles des boîtes de statistiques */
+.stats-box {
+    margin-top: 30px;
+    padding: 15px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+/* Styles pour le menu principal */
+#menu-container {
+    padding: 20px 0;
+}
+
+/* Styles pour la liste des thèmes */
+#theme-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* Styles pour chaque bloc de thème */
+.theme-stat-item {
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid var(--theme-color, #2a9d8f); /* Couleur d'accentuation */
+    transition: transform 0.2s;
+}
+
+.theme-stat-item:active {
+    transform: scale(0.98);
+}
+
+.theme-stat-item h3 {
+    margin-top: 0;
+    color: #2a9d8f;
+}
+
+.theme-stat-item p {
+    margin: 5px 0;
+    font-size: 0.95em;
+}
+
+.theme-stat-item strong {
+    font-weight: bold;
+}
+
+.theme-stat-item button {
+    margin-top: 10px;
+    width: 100%;
+    /* Couleur du bouton "Commencer" */
+    background-color: #2a9d8f; 
+    color: white;
+}
+
+/* Style du bouton de retour */
+.back-button {
+    background-color: #8d99ae;
+    color: white;
+    width: 100%;
+    margin-top: 20px;
+}
