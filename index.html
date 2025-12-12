@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Flashcards (SRS)</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Flashcards">
+</head>
+<body>
+    <div class="container">
+        <h1>Révisions Thématiques</h1>
+        
+        <div id="card-container">
+            <div id="flashcard" class="card" onclick="toggleAnswer()">
+                <p id="theme-display" class="theme"></p>
+                <div id="question-display" class="content">Chargement des cartes...</div>
+                <div id="answer-display" class="content answer-hidden">Cliquez pour voir la réponse</div>
+            </div>
+            
+            <div id="evaluation-buttons" class="hidden">
+                <button class="btn difficulty-1" onclick="evaluateCard(1)">1. Difficile (< 1 min)</button>
+                <button class="btn difficulty-2" onclick="evaluateCard(2)">2. Moyen (Proche)</button>
+                <button class="btn difficulty-3" onclick="evaluateCard(3)">3. Facile (Loin)</button>
+                <button class="btn difficulty-4" onclick="evaluateCard(4)">4. Très Facile (Très loin)</button>
+            </div>
+        </div>
+        
+        <div id="status-message"></div>
+        <div id="stats">
+            Cartes à réviser : <span id="cards-due-count">...</span>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
