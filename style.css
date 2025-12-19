@@ -22,9 +22,10 @@ h1 {
 
 /* 2. GRILLE DU MENU (LES THÈMES) */
 .grid-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* 2 colonnes */
+    display: flex;
+    flex-direction: column; /* Aligne les cartes verticalement */
     gap: 15px;
+    width: 100%;
 }
 
 .theme-card {
@@ -33,7 +34,8 @@ h1 {
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     text-align: center;
-    transition: transform 0.2s;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .theme-card:active {
@@ -52,6 +54,11 @@ h1 {
     margin-bottom: 15px;
 }
 
+/* Couleurs dynamiques */
+.theme-purple { border-left: 8px solid #a855f7; }
+.theme-green  { border-left: 8px solid #22c55e; }
+.theme-red    { border-left: 8px solid #ef4444; }
+.theme-yellow { border-left: 8px solid #eab308; }
 /* 3. LA CARTE DE RÉVISION */
 .card {
     background: white;

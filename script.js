@@ -37,20 +37,43 @@ async function loadData() {
 
 // 2. MENU
 function renderMenu() {
-    const themes = [...new Set(allCards.map(c => c.theme))];
     const container = document.getElementById('theme-list');
     container.innerHTML = '';
 
-    themes.forEach(t => {
-        const count = allCards.filter(c => c.theme === t).length;
+    // 1. Calcul des données par thème
+    const themeData = [...new Set(allCards.map(c => c.theme))].map(t => {
+        const total = allCards.filter(c => c.theme === t).length;
         const due = allCards.filter(c => c.theme === t && new Date(c.nextReview) <= new Date()).length;
+        const nonTraiteesPercent = (due / total) * 100;
+        const traiteesPercent = ((total - due) / total) * 100;
         
+        return { name: t, total, due, nonTraiteesPercent, traiteesPercent };
+    });
+
+    // 2. TRI DYNAMIQUE : On affiche en premier ceux qui ont le plus de cartes à réviser (DUE)
+    themeData.sort((a, b) => b.due - a.due);
+
+    // 3. AFFICHAGE ET COULEURS
+    themeData.forEach(t => {
+        let colorClass = "";
+        
+        // Logique de couleur selon tes critères
+        if (t.total < 5) {
+            colorClass = "theme-purple"; // Violet : Moins de 5 questions
+        } else if (t.traiteesPercent >= 80) {
+            colorClass = "theme-green";  // Vert : Plus de 80% traitées
+        } else if (t.nonTraiteesPercent > 75) {
+            colorClass = "theme-red";    // Rouge : Plus de 75% non traitées
+        } else {
+            colorClass = "theme-yellow"; // Jaune : Entre les deux
+        }
+
         const card = document.createElement('div');
-        card.className = 'theme-card';
+        card.className = `theme-card ${colorClass}`;
         card.innerHTML = `
-            <h3>${t}</h3>
-            <p>${due} à réviser / ${count}</p>
-            <button onclick="startSession('${t}')">Étudier</button>
+            <h3>${t.name}</h3>
+            <p><strong>${t.due}</strong> à réviser sur ${t.total}</p>
+            <button onclick="startSession('${t.name}')">Étudier</button>
         `;
         container.appendChild(card);
     });
@@ -89,29 +112,35 @@ function flipCard() {
 function submitAnswer(level) {
     const card = sessionCards[currentIndex];
     const now = new Date();
-    
-    // Algorithme SRS Simplifié (en jours)
-    let days = 1;
-    if (level === 2) days = 3;
-    if (level === 3) days = 7;
-    
-    card.nextReview = new Date(now.getTime() + (days * 24 * 60 * 60 * 1000)).toISOString();
+    if (!card.streak) card.streak = 0;
+
+    let delayInHours = 0;
+
+    if (level === 1) { // REVOIR : 1h
+        delayInHours = 1;
+        card.streak = 0;
+    } else if (level === 2) { // MOYEN : 6h
+        delayInHours = 6;
+        card.streak = 0;
+    } else if (level === 3) { // FACILE (Dynamique)
+        card.streak += 1;
+        switch(card.streak) {
+            case 1: delayInHours = 24; break;  // 24h
+            case 2: delayInHours = 48; break;  // 48h
+            case 3: delayInHours = 72; break;  // 72h
+            case 4: delayInHours = 168; break; // 1 semaine
+            default: delayInHours = 360;       // 15 jours
+        }
+    }
+
+    card.nextReview = new Date(now.getTime() + (delayInHours * 60 * 60 * 1000)).toISOString();
     
     // Sauvegarde locale
     const progress = JSON.parse(localStorage.getItem('srs_data') || '{}');
-    progress[card.question] = { nextReview: card.nextReview };
+    progress[card.question] = { nextReview: card.nextReview, streak: card.streak };
     localStorage.setItem('srs_data', JSON.stringify(progress));
 
     nextCard();
-}
-
-function nextCard() {
-    currentIndex++;
-    if (currentIndex < sessionCards.length) {
-        showCard();
-    } else {
-        exitToMenu();
-    }
 }
 
 function exitToMenu() {
