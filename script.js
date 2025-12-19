@@ -5,11 +5,12 @@ let sessionCards = [];
 let currentIndex = 0;
 let isShowingAnswer = false;
 
-// 1. CHARGEMENT
+// 1. CHARGEMENT DES DONNÉES
 async function loadData() {
     try {
         const response = await fetch(SHEET_URL);
         const text = await response.text();
+        // Extraction du JSON de Google Sheets
         const json = JSON.parse(text.substring(47, text.length - 2));
         const rows = json.table.rows;
 
@@ -24,7 +25,6 @@ async function loadData() {
                 question: q,
                 answer: a,
                 theme: t,
-                // CORRECTION ICI : On récupère aussi le streak sauvegardé
                 nextReview: localProgress[q]?.nextReview || new Date().toISOString(),
                 streak: localProgress[q]?.streak || 0 
             };
@@ -32,14 +32,16 @@ async function loadData() {
 
         renderMenu();
     } catch (e) {
-        console.error(e);
-        document.getElementById('theme-list').innerHTML = "Erreur de connexion au Google Sheet.";
+        console.error("Erreur de chargement:", e);
+        const themeList = document.getElementById('theme-list');
+        if(themeList) themeList.innerHTML = "Erreur de connexion au Google Sheet. Vérifiez la publication du fichier.";
     }
 }
 
-// 2. MENU (Tri et Couleurs)
+// 2. RENDU DU MENU (Tri par urgence et Couleurs dynamiques)
 function renderMenu() {
     const container = document.getElementById('theme-list');
+    if (!container) return;
     container.innerHTML = '';
 
     const themeNames = [...new Set(allCards.map(c => c.theme))];
@@ -48,12 +50,18 @@ function renderMenu() {
         const total = themeCards.length;
         const due = themeCards.filter(c => new Date(c.nextReview) <= new Date()).length;
         
+        const traiteesCount = themeCards.filter(c => {
+            const prog = JSON.parse(localStorage.getItem('srs_data') || '{}')[c.question];
+            return prog && prog.streak > 0;
+        }).length;
+
+        const traiteesPercent = (traiteesCount / total) * 100;
         const nonTraiteesPercent = (due / total) * 100;
-        const traiteesPercent = ((total - due) / total) * 100;
         
         return { name: t, total, due, nonTraiteesPercent, traiteesPercent };
     });
 
+    // Tri : thèmes avec le plus de cartes dues en premier
     themeData.sort((a, b) => b.due - a.due);
 
     themeData.forEach(t => {
@@ -77,16 +85,21 @@ function renderMenu() {
 // 3. LOGIQUE DE SESSION
 function startSession(theme) {
     let due = allCards.filter(c => c.theme === theme && new Date(c.nextReview) <= new Date());
+    // Si rien n'est dû, on propose quand même toutes les cartes du thème
     sessionCards = due.length > 0 ? due : allCards.filter(c => c.theme === theme);
     
     currentIndex = 0;
-    document.getElementById('menu-screen').classList.add('hidden');
-    document.getElementById('study-screen').classList.remove('hidden');
+    document.getElementById('menu-container')?.classList.add('hidden');
+    document.getElementById('menu-screen')?.classList.add('hidden'); // Compatibilité avec vos versions
+    
+    document.getElementById('card-container')?.classList.remove('hidden');
+    document.getElementById('study-screen')?.classList.remove('hidden');
+    
+    document.getElementById('back-to-menu')?.classList.remove('hidden');
     showCard();
 }
 
 function showCard() {
-    // Si l'index dépasse le nombre de cartes, on a fini !
     if (currentIndex >= sessionCards.length) {
         alert("Session terminée ! Bravo.");
         exitToMenu();
@@ -95,78 +108,7 @@ function showCard() {
 
     const card = sessionCards[currentIndex];
     isShowingAnswer = false;
-    // ... reste de ton code showCard ...
-    document.getElementById('card-content').textContent = card.question;
-    document.getElementById('card-theme-label').textContent = card.theme;
-    document.getElementById('card-count-label').textContent = `${currentIndex + 1}/${sessionCards.length}`;
-    document.getElementById('controls').classList.add('hidden');
-    document.getElementById('tap-hint').textContent = "Cliquer pour voir la réponse";
-}
-
-function flipCard() {
-    if (isShowingAnswer) return;
-    isShowingAnswer = true;
-    document.getElementById('card-content').textContent = sessionCards[currentIndex].answer;
-    document.getElementById('controls').classList.remove('hidden');
-    document.getElementById('tap-hint').textContent = "";
-}
-
-function submitAnswer(level) {
-    const card = sessionCards[currentIndex];
-    const now = new Date();
     
-    if (!card.streak) card.streak = 0;
-    let delayInHours = 0;
-
-    // Calcul des délais
-    if (level === 1) { 
-        delayInHours = 1;
-        card.streak = 0;
-    } else if (level === 2) { 
-        delayInHours = 6;
-        card.streak = 0;
-    } else if (level === 3) { 
-        card.streak += 1;
-        switch(card.streak) {
-            case 1: delayInHours = 24; break;
-            case 2: delayInHours = 48; break;
-            case 3: delayInHours = 72; break;
-            case 4: delayInHours = 168; break;
-            case 5: delayInHours = 360; break;
-            default: delayInHours = 720;
-        }
-    }
-
-    card.nextReview = new Date(now.getTime() + (delayInHours * 60 * 60 * 1000)).toISOString();
-    
-    // Sauvegarde
-    const progress = JSON.parse(localStorage.getItem('srs_data') || '{}');
-    progress[card.question] = { nextReview: card.nextReview, streak: card.streak };
-    localStorage.setItem('srs_data', JSON.stringify(progress));
-
-    // --- LA CORRECTION EST ICI ---
-    currentIndex++; // On passe à l'index suivant
-    showCard();     // On affiche la nouvelle carte
-}
-
-    card.nextReview = new Date(now.getTime() + (delayInHours * 60 * 60 * 1000)).toISOString();
-    
-    const progress = JSON.parse(localStorage.getItem('srs_data') || '{}');
-    progress[card.question] = { 
-        nextReview: card.nextReview,
-        streak: card.streak 
-    };
-    localStorage.setItem('srs_data', JSON.stringify(progress));
-
-    // CORRECTION : On incrémente AVANT d'afficher la suivante
-    currentIndex++; 
-    showCard(); 
-}
-
-function exitToMenu() {
-    document.getElementById('menu-screen')?.classList.remove('hidden');
-    document.getElementById('study-screen')?.classList.add('hidden');
-    renderMenu();
-}
-
-window.onload = loadData;
+    const content = document.getElementById('card-content') || document.getElementById('question-display');
+    const themeLabel = document.getElementById('card-theme-label') || document.getElementById('theme-display');
+    const countLabel = document.getElementById('card-count
