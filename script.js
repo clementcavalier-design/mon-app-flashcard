@@ -152,7 +152,7 @@ function submitAnswer(level) {
     localStorage.setItem('srs_data', JSON.stringify(progress));
 
     // 3. PASSAGE AUTOMATIQUE À LA SUIVANTE
-    nextCard(); 
+    showCard(); 
 }
 
 function exitToMenu() {
