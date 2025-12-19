@@ -3,41 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashcards Pro</title>
+    <title>Mes Flashcards (SRS)</title>
     <link rel="stylesheet" href="style.css">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Flashcards">
 </head>
 <body>
     <div class="container">
-        <h1 id="main-title">Mes Révisions</h1>
-
-        <div id="menu-screen">
-            <div id="theme-list" class="grid-container">
-                <p>Chargement des données Google Sheets...</p>
+        <h1>Révisions Thématiques</h1>
+        
+        <div id="menu-container">
+            <h2>Choisissez une Thématique</h2>
+            <div id="theme-list">
+                Chargement des données Google Sheet...
             </div>
         </div>
-
-        <div id="study-screen" class="hidden">
-            <div class="card-meta">
-                <span id="card-theme-label">Thème</span> • 
-                <span id="card-count-label">0/0</span>
+        
+        <div id="card-container" class="hidden">
+            <div id="stats" style="margin-bottom: 15px;">
+                Thème : <span id="theme-display">...</span><br>
+                Carte : <span id="cards-due-count">...</span>
             </div>
             
-            <div id="flashcard" class="card" onclick="flipCard()">
-                <div id="card-content">Cliquez pour commencer</div>
-                <div id="tap-hint">Cliquer pour voir la réponse</div>
+            <div id="flashcard" class="card" onclick="toggleAnswer()">
+                <div id="question-display" class="content">...</div>
+                <div id="answer-display" class="content answer-hidden">Cliquez pour voir la réponse</div> 
             </div>
-
-            <div id="controls" class="hidden">
-                <p>Niveau de maîtrise :</p>
-                <div class="btn-group">
-                    <button class="btn diff-1" onclick="submitAnswer(1)">Revoir</button>
-                    <button class="btn diff-2" onclick="submitAnswer(2)">Moyen</button>
-                    <button class="btn diff(3)" onclick="submitAnswer(3)">Facile</button>
-                </div>
+            
+            <div id="evaluation-buttons" class="hidden">
+                <button class="btn difficulty-1" onclick="evaluateCard(1)">1. Difficile</button>
+                <button class="btn difficulty-2" onclick="evaluateCard(2)">2. Moyen</button>
+                <button class="btn difficulty-3" onclick="evaluateCard(3)">3. Facile</button>
             </div>
-            <button class="btn-back" onclick="exitToMenu()">← Retour au menu</button>
         </div>
+        
+        <button id="back-to-menu" class="hidden btn back-button" onclick="exitToMenu()">← Retour au Menu</button>
+
     </div>
+    
     <script src="script.js"></script>
 </body>
 </html>
