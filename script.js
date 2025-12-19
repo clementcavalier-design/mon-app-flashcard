@@ -29,17 +29,24 @@ function getCardsFromSheets() {
             const parsedData = JSON.parse(jsonText);
             const rows = parsedData.table.rows;
             
-            if (rows.length > 1) { 
-                const rawData = rows.slice(1); 
-                cardData = rawData.map(row => [
-                    row.c[COLUMN_NAMES.QUESTION]?.v || '', 
-                    row.c[COLUMN_NAMES.ANSWER]?.v || '',   
-                    row.c[COLUMN_NAMES.THEME]?.v || 'Non classé'
-                ]);
+            if (rows.length > 0) { 
+                // On filtre les lignes pour ne garder que celles qui ont une question ET un thème
+                cardData = rows
+                    .map(row => {
+                        const q = row.c[COLUMN_NAMES.QUESTION]?.v || '';
+                        const a = row.c[COLUMN_NAMES.ANSWER]?.v || '';
+                        const t = row.c[COLUMN_NAMES.THEME]?.v || '';
+                        return [q, a, t];
+                    })
+                    .filter(row => row[0] !== '' && row[2] !== ''); // Supprime les lignes incomplètes
+                
                 loadLocalCards();
             }
         })
-        .catch(error => console.error("Erreur:", error));
+        .catch(error => {
+            console.error("Erreur de lecture :", error);
+            document.getElementById('theme-list').innerHTML = "Erreur lors du chargement des onglets.";
+        });
 }
 
 function loadLocalCards() {
