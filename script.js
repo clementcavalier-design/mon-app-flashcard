@@ -24,55 +24,50 @@ async function loadData() {
                 question: q,
                 answer: a,
                 theme: t,
+                // CORRECTION ICI : On récupère aussi le streak sauvegardé
                 nextReview: localProgress[q]?.nextReview || new Date().toISOString(),
-                interval: localProgress[q]?.interval || 0
+                streak: localProgress[q]?.streak || 0 
             };
         }).filter(c => c.question.length > 2);
 
         renderMenu();
     } catch (e) {
+        console.error(e);
         document.getElementById('theme-list').innerHTML = "Erreur de connexion au Google Sheet.";
     }
 }
 
-// 2. MENU
+// 2. MENU (Tri et Couleurs)
 function renderMenu() {
     const container = document.getElementById('theme-list');
     container.innerHTML = '';
 
-    // 1. Calcul des données par thème
-    const themeData = [...new Set(allCards.map(c => c.theme))].map(t => {
-        const total = allCards.filter(c => c.theme === t).length;
-        const due = allCards.filter(c => c.theme === t && new Date(c.nextReview) <= new Date()).length;
+    const themeNames = [...new Set(allCards.map(c => c.theme))];
+    const themeData = themeNames.map(t => {
+        const themeCards = allCards.filter(c => c.theme === t);
+        const total = themeCards.length;
+        const due = themeCards.filter(c => new Date(c.nextReview) <= new Date()).length;
+        
         const nonTraiteesPercent = (due / total) * 100;
         const traiteesPercent = ((total - due) / total) * 100;
         
         return { name: t, total, due, nonTraiteesPercent, traiteesPercent };
     });
 
-    // 2. TRI DYNAMIQUE : On affiche en premier ceux qui ont le plus de cartes à réviser (DUE)
     themeData.sort((a, b) => b.due - a.due);
 
-    // 3. AFFICHAGE ET COULEURS
     themeData.forEach(t => {
         let colorClass = "";
-        
-        // Logique de couleur selon tes critères
-        if (t.total < 5) {
-            colorClass = "theme-purple"; // Violet : Moins de 5 questions
-        } else if (t.traiteesPercent >= 80) {
-            colorClass = "theme-green";  // Vert : Plus de 80% traitées
-        } else if (t.nonTraiteesPercent > 75) {
-            colorClass = "theme-red";    // Rouge : Plus de 75% non traitées
-        } else {
-            colorClass = "theme-yellow"; // Jaune : Entre les deux
-        }
+        if (t.total < 5) colorClass = "theme-purple";
+        else if (t.traiteesPercent >= 80) colorClass = "theme-green";
+        else if (t.nonTraiteesPercent > 75) colorClass = "theme-red";
+        else colorClass = "theme-yellow";
 
         const card = document.createElement('div');
         card.className = `theme-card ${colorClass}`;
         card.innerHTML = `
             <h3>${t.name}</h3>
-            <p><strong>${t.due}</strong> à réviser sur ${t.total}</p>
+            <p><strong>${t.due}</strong> à réviser / ${t.total}</p>
             <button onclick="startSession('${t.name}')">Étudier</button>
         `;
         container.appendChild(card);
@@ -81,7 +76,6 @@ function renderMenu() {
 
 // 3. LOGIQUE DE SESSION
 function startSession(theme) {
-    // On prend les cartes dues en priorité, sinon tout le thème
     let due = allCards.filter(c => c.theme === theme && new Date(c.nextReview) <= new Date());
     sessionCards = due.length > 0 ? due : allCards.filter(c => c.theme === theme);
     
@@ -92,6 +86,12 @@ function startSession(theme) {
 }
 
 function showCard() {
+    // Vérification si on a fini la session
+    if (currentIndex >= sessionCards.length) {
+        exitToMenu();
+        return;
+    }
+
     const card = sessionCards[currentIndex];
     isShowingAnswer = false;
     document.getElementById('card-content').textContent = card.question;
@@ -113,37 +113,42 @@ function submitAnswer(level) {
     const card = sessionCards[currentIndex];
     const now = new Date();
     
-    // Initialisation du streak si c'est une nouvelle carte
     if (!card.streak) card.streak = 0;
-
     let delayInHours = 0;
 
-    // 1. CALCUL DU DÉLAI DYNAMIQUE
-    if (level === 1) { // REVOIR
+    // Calcul des délais
+    if (level === 1) { 
         delayInHours = 1;
-        card.streak = 0; // Reset du streak
-    } 
-    else if (level === 2) { // MOYEN
+        card.streak = 0;
+    } else if (level === 2) { 
         delayInHours = 6;
-        card.streak = 0; // On ne progresse pas dans les paliers
-    } 
-    else if (level === 3) { // FACILE
-        card.streak += 1; // Progression dans les paliers (1, 2, 3, 4, 5)
-
+        card.streak = 0;
+    } else if (level === 3) { 
+        card.streak += 1;
         switch(card.streak) {
-            case 1: delayInHours = 24; break;   // 1er succès : 24h
-            case 2: delayInHours = 48; break;   // 2ème succès : 48h
-            case 3: delayInHours = 72; break;   // 3ème succès : 72h
-            case 4: delayInHours = 168; break;  // 4ème succès : 1 semaine
-            case 5: delayInHours = 360; break;  // 5ème succès : 15 jours
-            default: delayInHours = 720;        // Au-delà : 1 mois
+            case 1: delayInHours = 24; break;
+            case 2: delayInHours = 48; break;
+            case 3: delayInHours = 72; break;
+            case 4: delayInHours = 168; break;
+            case 5: delayInHours = 360; break;
+            default: delayInHours = 720;
         }
     }
 
-    // 2. ENREGISTREMENT DE LA DATE DE RÉVISION
     card.nextReview = new Date(now.getTime() + (delayInHours * 60 * 60 * 1000)).toISOString();
     
-    // Sauvegarde locale pour ne pas perdre la progression au rafraîchissement
+    // Sauvegarde
+    const progress = JSON.parse(localStorage.getItem('srs_data') || '{}');
+    progress[card.question] = { nextReview: card.nextReview, streak: card.streak };
+    localStorage.setItem('srs_data', JSON.stringify(progress));
+
+    // --- LA CORRECTION EST ICI ---
+    currentIndex++; // On passe à l'index suivant
+    showCard();     // On affiche la nouvelle carte
+}
+
+    card.nextReview = new Date(now.getTime() + (delayInHours * 60 * 60 * 1000)).toISOString();
+    
     const progress = JSON.parse(localStorage.getItem('srs_data') || '{}');
     progress[card.question] = { 
         nextReview: card.nextReview,
@@ -151,13 +156,14 @@ function submitAnswer(level) {
     };
     localStorage.setItem('srs_data', JSON.stringify(progress));
 
-    // 3. PASSAGE AUTOMATIQUE À LA SUIVANTE
+    // CORRECTION : On incrémente AVANT d'afficher la suivante
+    currentIndex++; 
     showCard(); 
 }
 
 function exitToMenu() {
-    document.getElementById('menu-screen').classList.remove('hidden');
-    document.getElementById('study-screen').classList.add('hidden');
+    document.getElementById('menu-screen')?.classList.remove('hidden');
+    document.getElementById('study-screen')?.classList.add('hidden');
     renderMenu();
 }
 
