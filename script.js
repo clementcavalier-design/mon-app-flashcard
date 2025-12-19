@@ -86,14 +86,16 @@ function startSession(theme) {
 }
 
 function showCard() {
-    // Vérification si on a fini la session
+    // Si l'index dépasse le nombre de cartes, on a fini !
     if (currentIndex >= sessionCards.length) {
+        alert("Session terminée ! Bravo.");
         exitToMenu();
         return;
     }
 
     const card = sessionCards[currentIndex];
     isShowingAnswer = false;
+    // ... reste de ton code showCard ...
     document.getElementById('card-content').textContent = card.question;
     document.getElementById('card-theme-label').textContent = card.theme;
     document.getElementById('card-count-label').textContent = `${currentIndex + 1}/${sessionCards.length}`;
