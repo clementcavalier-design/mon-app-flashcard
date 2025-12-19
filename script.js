@@ -112,35 +112,47 @@ function flipCard() {
 function submitAnswer(level) {
     const card = sessionCards[currentIndex];
     const now = new Date();
+    
+    // Initialisation du streak si c'est une nouvelle carte
     if (!card.streak) card.streak = 0;
 
     let delayInHours = 0;
 
-    if (level === 1) { // REVOIR : 1h
+    // 1. CALCUL DU DÉLAI DYNAMIQUE
+    if (level === 1) { // REVOIR
         delayInHours = 1;
-        card.streak = 0;
-    } else if (level === 2) { // MOYEN : 6h
+        card.streak = 0; // Reset du streak
+    } 
+    else if (level === 2) { // MOYEN
         delayInHours = 6;
-        card.streak = 0;
-    } else if (level === 3) { // FACILE (Dynamique)
-        card.streak += 1;
+        card.streak = 0; // On ne progresse pas dans les paliers
+    } 
+    else if (level === 3) { // FACILE
+        card.streak += 1; // Progression dans les paliers (1, 2, 3, 4, 5)
+
         switch(card.streak) {
-            case 1: delayInHours = 24; break;  // 24h
-            case 2: delayInHours = 48; break;  // 48h
-            case 3: delayInHours = 72; break;  // 72h
-            case 4: delayInHours = 168; break; // 1 semaine
-            default: delayInHours = 360;       // 15 jours
+            case 1: delayInHours = 24; break;   // 1er succès : 24h
+            case 2: delayInHours = 48; break;   // 2ème succès : 48h
+            case 3: delayInHours = 72; break;   // 3ème succès : 72h
+            case 4: delayInHours = 168; break;  // 4ème succès : 1 semaine
+            case 5: delayInHours = 360; break;  // 5ème succès : 15 jours
+            default: delayInHours = 720;        // Au-delà : 1 mois
         }
     }
 
+    // 2. ENREGISTREMENT DE LA DATE DE RÉVISION
     card.nextReview = new Date(now.getTime() + (delayInHours * 60 * 60 * 1000)).toISOString();
     
-    // Sauvegarde locale
+    // Sauvegarde locale pour ne pas perdre la progression au rafraîchissement
     const progress = JSON.parse(localStorage.getItem('srs_data') || '{}');
-    progress[card.question] = { nextReview: card.nextReview, streak: card.streak };
+    progress[card.question] = { 
+        nextReview: card.nextReview,
+        streak: card.streak 
+    };
     localStorage.setItem('srs_data', JSON.stringify(progress));
 
-    nextCard();
+    // 3. PASSAGE AUTOMATIQUE À LA SUIVANTE
+    nextCard(); 
 }
 
 function exitToMenu() {
