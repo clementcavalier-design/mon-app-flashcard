@@ -3,54 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mes Flashcards (SRS)</title>
+    <title>Flashcards Pro</title>
     <link rel="stylesheet" href="style.css">
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Flashcards">
 </head>
 <body>
     <div class="container">
-        <h1>Révisions Thématiques</h1>
-        
-        <div id="menu-container">
-            <h2>Choisissez une Thématique</h2>
-            
-            <div id="theme-list">
-                Chargement des statistiques...
-            </div>
-            
-            <div id="overall-stats" class="stats-box">
-                </div>
-        </div>
-        
-        <div id="card-container" class="hidden">
-            
-            <div id="stats" style="margin-bottom: 15px;">
-                Cartes à réviser aujourd'hui : <span id="cards-due-count">...</span>
-            </div>
-            
-            <div id="flashcard" class="card" onclick="toggleAnswer()">
-                <p id="theme-display" class="theme"></p>
-                <div id="question-display" class="content">...</div>
-                <div id="answer-display" class="content answer-hidden">Cliquez pour voir la réponse</div> 
-            </div>
-            
-            <div id="evaluation-buttons" class="hidden">
-                <button class="btn difficulty-1" onclick="evaluateCard(1)">1. Difficile</button>
-                <button class="btn difficulty-2" onclick="evaluateCard(2)">2. Moyen</button>
-                <button class="btn difficulty-3" onclick="evaluateCard(3)">3. Facile</button>
-                <button class="btn difficulty-4" onclick="evaluateCard(4)">4. Très Facile</button>
-            </div>
-        </div>
-        
-        <div id="status-message"></div>
-        
-        <button id="back-to-menu" class="hidden btn back-button" onclick="showMenu()">← Retour au Menu</button>
+        <h1 id="main-title">Mes Révisions</h1>
 
+        <div id="menu-screen">
+            <div id="theme-list" class="grid-container">
+                <p>Chargement des données Google Sheets...</p>
+            </div>
+        </div>
+
+        <div id="study-screen" class="hidden">
+            <div class="card-meta">
+                <span id="card-theme-label">Thème</span> • 
+                <span id="card-count-label">0/0</span>
+            </div>
+            
+            <div id="flashcard" class="card" onclick="flipCard()">
+                <div id="card-content">Cliquez pour commencer</div>
+                <div id="tap-hint">Cliquer pour voir la réponse</div>
+            </div>
+
+            <div id="controls" class="hidden">
+                <p>Niveau de maîtrise :</p>
+                <div class="btn-group">
+                    <button class="btn diff-1" onclick="submitAnswer(1)">Revoir</button>
+                    <button class="btn diff-2" onclick="submitAnswer(2)">Moyen</button>
+                    <button class="btn diff(3)" onclick="submitAnswer(3)">Facile</button>
+                </div>
+            </div>
+            <button class="btn-back" onclick="exitToMenu()">← Retour au menu</button>
+        </div>
     </div>
-    
     <script src="script.js"></script>
 </body>
 </html>
