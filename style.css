@@ -23,7 +23,7 @@ h1 {
 /* 2. GRILLE DU MENU (LES THÈMES) */
 .grid-container {
     display: flex;
-    flex-direction: column; /* Aligne les cartes verticalement */
+    flex-direction: column;
     gap: 15px;
     width: 100%;
 }
@@ -36,6 +36,7 @@ h1 {
     text-align: center;
     width: 100%;
     box-sizing: border-box;
+    margin-bottom: 15px; /* Ajout pour espacement vertical */
 }
 
 .theme-card:active {
@@ -59,6 +60,7 @@ h1 {
 .theme-green  { border-left: 8px solid #22c55e; }
 .theme-red    { border-left: 8px solid #ef4444; }
 .theme-yellow { border-left: 8px solid #eab308; }
+
 /* 3. LA CARTE DE RÉVISION */
 .card {
     background: white;
@@ -115,13 +117,24 @@ button {
 }
 
 .btn {
-    flex: 1;
-    padding: 15px 5px;
+    flex: 1; /* Permet aux boutons de prendre la même largeur */
+    margin-bottom: 5px; /* Petit espace si empilés sur mobile */
 }
 
-.diff-1 { background-color: #ff3b30; } /* Rouge */
-.diff-2 { background-color: #ff9500; } /* Orange */
-.diff-3 { background-color: #34c759; } /* Vert */
+/* Ajustement pour que les boutons soient côte à côte */
+#evaluation-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+#evaluation-buttons .btn {
+    flex: 1 1 30%; /* 30% de largeur chacun */
+}
+
+.difficulty-1 { background-color: #ff3b30; } /* Rouge */
+.difficulty-2 { background-color: #ff9500; } /* Orange */
+.difficulty-3 { background-color: #34c759; } /* Vert */
 
 .btn-back {
     background: none;
@@ -133,4 +146,21 @@ button {
 /* 5. UTILITAIRES */
 .hidden {
     display: none !important;
+}
+
+/* 6. STYLE BOUTON IGNORER (NOUVEAU) */
+.btn-ignore {
+    background-color: transparent;
+    color: #8e8e93; /* Gris discret */
+    border: 1px solid #d1d1d6;
+    font-size: 13px;
+    padding: 8px;
+    font-weight: normal;
+    transition: all 0.2s ease;
+}
+
+.btn-ignore:hover {
+    background-color: #fff0f0;
+    color: #ff3b30;
+    border-color: #ff3b30;
 }

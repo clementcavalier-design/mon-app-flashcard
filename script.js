@@ -21,14 +21,20 @@ async function loadData() {
             const a = r.c[1]?.v || '';
             const t = (r.c[2]?.v || 'AUTRE').trim().toUpperCase();
             
+            // On vérifie si la carte a été ignorée précédemment
+            const isIgnored = localProgress[q]?.isIgnored || false;
+
             return {
                 question: q,
                 answer: a,
                 theme: t,
                 nextReview: localProgress[q]?.nextReview || new Date().toISOString(),
-                streak: localProgress[q]?.streak || 0 
+                streak: localProgress[q]?.streak || 0,
+                isIgnored: isIgnored
             };
-        }).filter(c => c.question.length > 2);
+        })
+        // On ne garde que les cartes valides ET qui ne sont pas ignorées
+        .filter(c => c.question.length > 2 && !c.isIgnored);
 
         renderMenu();
     } catch (e) {
@@ -151,10 +157,33 @@ function evaluateCard(level) {
     card.nextReview = new Date(now.getTime() + (delayInHours * 60 * 60 * 1000)).toISOString();
     
     const progress = JSON.parse(localStorage.getItem('srs_data') || '{}');
-    progress[card.question] = { nextReview: card.nextReview, streak: card.streak };
+    progress[card.question] = { 
+        nextReview: card.nextReview, 
+        streak: card.streak,
+        isIgnored: false 
+    };
     localStorage.setItem('srs_data', JSON.stringify(progress));
 
     // PASSAGE AUTOMATIQUE
+    currentIndex++;
+    showCard();
+}
+
+// 4. FONCTION POUR IGNORER UNE CARTE
+function ignoreCard() {
+    if (!confirm("Voulez-vous vraiment exclure cette carte ? Elle ne vous sera plus proposée.")) return;
+
+    const card = sessionCards[currentIndex];
+    
+    // On met à jour le localStorage avec le flag isIgnored
+    const progress = JSON.parse(localStorage.getItem('srs_data') || '{}');
+    progress[card.question] = { 
+        ...progress[card.question], // conserve l'historique si existant
+        isIgnored: true 
+    };
+    localStorage.setItem('srs_data', JSON.stringify(progress));
+
+    // On passe à la suivante
     currentIndex++;
     showCard();
 }
@@ -163,7 +192,8 @@ function exitToMenu() {
     document.getElementById('menu-container').classList.remove('hidden');
     document.getElementById('card-container').classList.add('hidden');
     document.getElementById('back-to-menu').classList.add('hidden');
-    renderMenu();
+    // On recharge les données pour que la carte ignorée disparaisse des totaux
+    loadData();
 }
 
 function showMenu() { exitToMenu(); }
